@@ -31,19 +31,61 @@
     .cd-i{width:calc(100% - 10px);height:calc(100% - 10px);border:1px solid rgba(201,169,110,.1);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(201,169,110,.07)}
     .divider-section{width:min(500px,85%);height:1px;background:linear-gradient(to right,transparent,rgba(201,169,110,.18),transparent);margin:0 auto 14px}
     .stage-row{width:100%;display:flex;align-items:center;justify-content:center;gap:16px;min-height:260px;padding:0 12px;flex-shrink:0}
-    .stage-placeholder{font-style:italic;font-size:13px;color:#3a3020}
-    .stage-instructions{display:flex;flex-direction:column;gap:10px;max-width:110px;flex-shrink:0}
-    .instr-line{display:flex;align-items:flex-start;gap:6px;font-style:italic;font-size:10px;color:#4a3e2e;line-height:1.5}
-    .instr-icon{font-size:13px;flex-shrink:0;margin-top:1px}
-    .stage-card{width:160px;height:246px;position:relative;flex-shrink:0;border-radius:10px;cursor:grab;user-select:none;touch-action:none}
-    .stage-card.dragging{cursor:grabbing}
-    .stage-card-ghost{width:160px;height:246px;flex-shrink:0;border-radius:10px;overflow:hidden;opacity:.45;pointer-events:none;}
-    .stage-card.flipped .ci{transform:rotateY(180deg)}
-    .stage-card .ci{border-radius:10px;transition:transform .7s cubic-bezier(.4,0,.2,1)}
-    .stage-card .cf{border-radius:10px;border-color:rgba(201,169,110,.4)}
-    .stage-card .cs{font-size:38px}
-    .stage-card .cn{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em}
-    .stage-card .ct{font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4}
+    .stage-placeholder{font-style:italic;font-size:13px;color:#b8a882}
+    .stage-instructions{display:flex;flex-direction:column;gap:12px;max-width:120px;flex-shrink:0}
+    .instr-line{display:flex;align-items:flex-start;gap:7px;font-style:italic;font-size:12px;color:#b8a882;line-height:1.55}
+    .instr-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+    /* ── Stage card: perspective container ── */
+    .stage-card{
+      width:160px; height:246px;
+      position:relative; flex-shrink:0;
+      border-radius:10px;
+      cursor:grab; user-select:none; touch-action:none;
+      perspective:600px;
+    }
+    .stage-card.dragging{ cursor:grabbing; }
+    /* Inner wrapper — this is the element that physically rotates */
+    .sc-inner{
+      width:100%; height:100%;
+      position:relative;
+      transform-style:preserve-3d;
+      transition:transform 0.6s ease-out;
+      border-radius:10px;
+    }
+    /* Flipped state: rotate the inner wrapper */
+    .stage-card.flipped .sc-inner{ transform:rotateY(-180deg); }
+    /* Both faces: absolutely stacked, backface hidden */
+    .sc-back, .sc-front{
+      position:absolute; inset:0;
+      border-radius:10px;
+      border:1px solid rgba(201,169,110,.4);
+      overflow:hidden;
+      -webkit-backface-visibility:hidden;
+      backface-visibility:hidden;
+    }
+    /* Back = emotion face, starts facing you */
+    .sc-back{
+      transform:rotateY(0deg);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:10px; padding:18px 14px;
+    }
+    .sc-back::before,.sc-back::after{
+      content:''; position:absolute;
+      width:18px; height:18px;
+      border-color:rgba(201,169,110,.35); border-style:solid;
+    }
+    .sc-back::before{top:8px;left:8px;border-width:1px 0 0 1px;}
+    .sc-back::after{bottom:8px;right:8px;border-width:0 1px 1px 0;}
+    /* Front = I can list, starts facing away */
+    .sc-front{
+      transform:rotateY(180deg);
+      padding:14px 12px;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .stage-card .cs{font-size:38px;line-height:1;}
+    .stage-card .cn{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em;text-align:center;}
+    .stage-card .ct{font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4;}
     .bt{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:.14em;color:#c9a96e;text-align:center;border-bottom:1px solid rgba(201,169,110,.2);padding-bottom:6px}
     .bi{list-style:none;display:flex;flex-direction:column;gap:5px}
     .bi li{font-size:10px;line-height:1.4;color:var(--cream);display:flex;gap:5px}
@@ -53,7 +95,7 @@
     .discard-zone.drag-over{transform:scale(1.08)}
     .discard-ghost{position:absolute;inset:0;border-radius:5px;border:2px dashed rgba(201,169,110,.25);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(201,169,110,.1);transition:border-color .2s,background .2s}
     .discard-mini{position:absolute;width:68px;height:100px;border-radius:5px;border:1px solid rgba(201,169,110,.22)}
-    .discard-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:7px;letter-spacing:.1em;color:#5a4e3c;white-space:pre;line-height:1.5;text-align:center;transition:color .2s}
+    .discard-label{position:absolute;bottom:-26px;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.08em;color:#b8a882;white-space:pre;line-height:1.5;text-align:center;transition:color .2s}
     .discard-zone:hover .discard-label{color:var(--gold)}
     .discard-count{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-family:'Cinzel',serif;font-size:9px;font-weight:600;color:#0e0c09;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
     .discard-count.show{opacity:1}
@@ -76,7 +118,7 @@
     .btn:hover{background:rgba(201,169,110,.08);border-color:var(--gold);color:#e8c98a}
     .btn:active{transform:scale(.97)}
     .btn.primary{border-color:var(--gold);background:rgba(201,169,110,.07)}
-    .status{font-style:italic;font-size:13px;color:#4a3e2e;margin-top:6px;margin-bottom:2.5rem;letter-spacing:.05em;min-height:20px;text-align:center;padding:0 1rem}
+    .status{font-style:italic;font-size:13px;color:#b8a882;margin-top:6px;margin-bottom:2.5rem;letter-spacing:.05em;min-height:20px;text-align:center;padding:0 1rem}
   </style>
 </head>
 <body>
@@ -200,45 +242,67 @@ function flyFromFan(srcRect,data,cb){
 
 function renderStageCard(data){
   stageCardEl=document.createElement('div');stageCardEl.className='stage-card';
-  stageCardEl.innerHTML=`<div class="ci"><div class="cf cf-front" style="background:${data.color}"><div class="cs">${data.symbol}</div><div class="cn">${data.name}</div><div class="ct">${data.tagline}</div></div><div class="cf" style="transform:rotateY(180deg);background:${data.color}dd;border-radius:10px;border:1px solid rgba(201,169,110,.4);padding:14px 12px;display:flex;flex-direction:column;gap:8px;overflow:hidden;"><div class="bt">Feeling ${data.name.toLowerCase()}, I can…</div><ul class="bi">${data.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div></div>`;
-  // Drag uses a floating clone so the layout never shifts
-  let dragActive=false,startX=0,startY=0,wasDragged=false,dragClone=null,ghostEl=null;
+  stageCardEl.innerHTML=`<div class="sc-inner">
+      <div class="sc-back" style="background:${data.color}">
+        <div class="cs">${data.symbol}</div>
+        <div class="cn">${data.name}</div>
+        <div class="ct">${data.tagline}</div>
+      </div>
+      <div class="sc-front" style="background:${data.color}e8">
+        <div class="bt">Feeling ${data.name.toLowerCase()}, I can…</div>
+        <ul class="bi">${data.actions.map(a=>`<li>${a}</li>`).join('')}</ul>
+      </div>
+    </div>`;
+  // ── Click = flip, drag = move to discard ──
+  // Flip on click (clean, no interference from drag logic)
+  stageCardEl.addEventListener('click', ()=>{ if(!animating) stageCardEl.classList.toggle('flipped'); });
+
+  let dragActive=false,startX=0,startY=0,dragStarted=false,dragClone=null;
+
   function onDown(e){
     if(animating)return;
-    const pt=e.touches?e.touches[0]:e;startX=pt.clientX;startY=pt.clientY;
+    const pt=e.touches?e.touches[0]:e;
+    startX=pt.clientX;startY=pt.clientY;
+    dragActive=true;dragStarted=false;
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('mouseup',onUp);
+    document.addEventListener('touchend',onUp);
+  }
+
+  function startDrag(){
+    // Only called once movement crosses threshold
+    dragStarted=true;
     const r=stageCardEl.getBoundingClientRect();
-    dragActive=true;wasDragged=false;
-    // Create a fixed-position clone for dragging
+    // Floating clone follows the finger/cursor
     dragClone=document.createElement('div');
     dragClone.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:500;pointer-events:none;border-radius:10px;background:${activeData.color};border:1px solid rgba(201,169,110,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 14px;`;
     dragClone.innerHTML=`<div style="font-size:38px;line-height:1">${activeData.symbol}</div><div style="font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em;text-align:center">${activeData.name}</div><div style="font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4">${activeData.tagline}</div>`;
     document.body.appendChild(dragClone);
-    // Insert ghost placeholder so layout doesn't shift
-    ghostEl=document.createElement('div');ghostEl.className='stage-card-ghost';
-    ghostEl.style.cssText=`background:${activeData.color};border:1px solid rgba(201,169,110,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 14px;`;
-    ghostEl.innerHTML=`<div style="font-size:38px;line-height:1">${activeData.symbol}</div><div style="font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em;text-align:center">${activeData.name}</div><div style="font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4">${activeData.tagline}</div>`;
-    stageCardEl.parentNode.insertBefore(ghostEl,stageCardEl);
-    stageCardEl.style.display='none';
-    document.addEventListener('mousemove',onMove);document.addEventListener('touchmove',onMove,{passive:false});document.addEventListener('mouseup',onUp);document.addEventListener('touchend',onUp);
+    // Hide the real card in place — visibility keeps its space, no ghost needed
+    stageCardEl.style.visibility='hidden';
+    stageCardEl.style.opacity='0';
   }
+
   function onMove(e){
     if(!dragActive)return;if(e.cancelable)e.preventDefault();
-    const pt=e.touches?e.touches[0]:e;const dx=pt.clientX-startX,dy=pt.clientY-startY;
-    if(Math.abs(dx)>4||Math.abs(dy)>4)wasDragged=true;
-    const r=ghostEl.getBoundingClientRect();
+    const pt=e.touches?e.touches[0]:e;
+    const dx=pt.clientX-startX,dy=pt.clientY-startY;
+    if(!dragStarted){
+      if(Math.abs(dx)>8||Math.abs(dy)>8) startDrag();
+      else return;
+    }
+    const r=stageCardEl.getBoundingClientRect();
     dragClone.style.left=(r.left+dx)+'px';dragClone.style.top=(r.top+dy)+'px';
     if(discardZoneEl){const dz=discardZoneEl.getBoundingClientRect();discardZoneEl.classList.toggle('drag-over',pt.clientX>dz.left&&pt.clientX<dz.right&&pt.clientY>dz.top&&pt.clientY<dz.bottom);}
   }
+
   function onUp(e){
     if(!dragActive)return;dragActive=false;
     document.removeEventListener('mousemove',onMove);document.removeEventListener('touchmove',onMove);document.removeEventListener('mouseup',onUp);document.removeEventListener('touchend',onUp);
     if(discardZoneEl)discardZoneEl.classList.remove('drag-over');
-    if(!wasDragged){
-      // Just a tap — restore card, remove ghost, toggle flip
-      dragClone.remove();dragClone=null;
-      ghostEl.remove();ghostEl=null;
-      stageCardEl.style.display='';
-      stageCardEl.classList.toggle('flipped');
+    if(!dragStarted){
+      // Released before drag threshold — click handler already handled flip
       return;
     }
     const pt=e.changedTouches?e.changedTouches[0]:e;
@@ -251,18 +315,20 @@ function renderStageCard(data){
       dragClone.style.transition='left .4s cubic-bezier(.4,0,.2,1),top .4s cubic-bezier(.4,0,.2,1),width .4s ease,height .4s ease,border-radius .4s ease,opacity .35s ease';
       dragClone.style.left=dzRect.left+'px';dragClone.style.top=dzRect.top+'px';dragClone.style.width='68px';dragClone.style.height='100px';dragClone.style.borderRadius='5px';dragClone.style.opacity='0';
       setTimeout(()=>{
-        dragClone.remove();dragClone=null;ghostEl.remove();ghostEl=null;stageCardEl.remove();
+        dragClone.remove();dragClone=null;
+        stageCardEl.remove();
         sendToDiscard(activeData);clearStageCard();rebuildStageRow();
         if(discardZoneEl){discardZoneEl.classList.remove('just-received');void discardZoneEl.offsetWidth;discardZoneEl.classList.add('just-received');}
         animating=false;statusEl.textContent='Card placed — pick another from the fan';
       },420);
     } else {
       // Snap clone back to ghost position, then restore real card
-      const gr=ghostEl.getBoundingClientRect();
+      const cr=stageCardEl.getBoundingClientRect();
       dragClone.style.transition='left .3s cubic-bezier(.34,1.1,.64,1),top .3s cubic-bezier(.34,1.1,.64,1)';
-      dragClone.style.left=gr.left+'px';dragClone.style.top=gr.top+'px';
+      dragClone.style.left=cr.left+'px';dragClone.style.top=cr.top+'px';
       setTimeout(()=>{
-        dragClone.remove();dragClone=null;ghostEl.remove();ghostEl=null;stageCardEl.style.display='';
+        dragClone.remove();dragClone=null;
+        stageCardEl.style.visibility='';stageCardEl.style.opacity='';
       },320);
     }
   }
@@ -291,7 +357,7 @@ function rebuildStageRow(){
     // Empty slot — keeps layout stable
     const emptySlot=document.createElement('div');
     emptySlot.style.cssText='width:160px;height:246px;flex-shrink:0;border-radius:10px;border:1px dashed rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;';
-    emptySlot.innerHTML='<span style="font-style:italic;font-size:11px;color:#3a3020;text-align:center;padding:0 12px">Select a card<br>from the fan</span>';
+    emptySlot.innerHTML='<span style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:13px;color:#b8a882;text-align:center;padding:0 16px;line-height:1.6">Select a card<br>from the fan</span>';
     stageRow.appendChild(emptySlot);
   }
 
