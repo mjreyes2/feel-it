@@ -8,77 +8,83 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --gold: #c9a96e; --gold-light: #e8c98a; --gold-dim: #7a6540; --cream: #c4b89a; }
-    html, body { min-height: 100%; background: #0e0c09; display: flex; flex-direction: column; align-items: center; font-family: 'Cormorant Garamond', Georgia, serif; overflow-x: hidden; }
-    header { text-align: center; padding: 3.5rem 2rem 0.5rem; }
-    header h1 { font-family: 'Cinzel', serif; font-size: clamp(1.8rem,5vw,3rem); font-weight: 400; letter-spacing: 0.35em; color: var(--gold); }
-    header p  { font-size: 1rem; font-style: italic; color: var(--gold-dim); margin-top: 0.4rem; letter-spacing: 0.1em; }
-    .divider-h { width: min(360px,70vw); height: 1px; background: linear-gradient(to right,transparent,var(--gold-dim),transparent); margin: 1.5rem auto; }
-
-    .fan-arena { position: relative; width: 100%; height: 280px; flex-shrink: 0; }
-
-    .card {
-      position: absolute; width: 72px; height: 110px;
-      transform-origin: 50% 100%; cursor: pointer;
-      transition: left .55s cubic-bezier(.34,1.1,.64,1), top .55s cubic-bezier(.34,1.1,.64,1),
-                  transform .55s cubic-bezier(.34,1.1,.64,1), opacity .4s ease;
-      will-change: transform, left, top;
-    }
-    .card.chosen { cursor: default; pointer-events: none; }
-    .card:not(.chosen):hover { z-index: 100 !important; }
-    .card:not(.chosen):hover .card-inner { transform: translateY(-12px) scale(1.08); }
-    .card-inner { width:100%; height:100%; transform-style:preserve-3d; transition:transform .35s ease; position:relative; border-radius:5px; }
-    .card-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:5px; border:1px solid rgba(201,169,110,.28); overflow:hidden; }
-    .card-front { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px 5px; }
-    .card-front::before,.card-front::after { content:''; position:absolute; width:10px; height:10px; border-color:rgba(201,169,110,.3); border-style:solid; }
-    .card-front::before { top:5px; left:5px; border-width:1px 0 0 1px; }
-    .card-front::after  { bottom:5px; right:5px; border-width:0 1px 1px 0; }
-    .c-symbol { font-size:18px; line-height:1; }
-    .c-name   { font-family:'Cinzel',serif; font-size:7.5px; font-weight:600; color:#e8c98a; letter-spacing:.04em; text-align:center; }
-    .card-deco { background:#171410; display:flex; align-items:center; justify-content:center; }
-    .deco-inner { width:calc(100% - 10px); height:calc(100% - 10px); border:1px solid rgba(201,169,110,.12); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:16px; color:rgba(201,169,110,.08); }
-
-    .divider-section { width:min(480px,85%); height:1px; background:linear-gradient(to right,transparent,rgba(201,169,110,.2),transparent); margin:6px auto 14px; }
-
-    .stage-area { width:100%; min-height:260px; display:flex; align-items:center; justify-content:center; padding:0 24px; gap:16px; }
-    .stage-placeholder { font-style:italic; font-size:14px; color:#3a3020; }
-
-    .selected-card { width:150px; height:231px; position:relative; flex-shrink:0; cursor:pointer; }
-    .selected-card .card-inner { width:100%; height:100%; transform-style:preserve-3d; transition:transform .7s cubic-bezier(.4,0,.2,1); border-radius:9px; position:relative; }
-    .selected-card.flipped .card-inner { transform:rotateY(180deg); }
-    .selected-card .card-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:9px; border:1px solid rgba(201,169,110,.4); overflow:hidden; }
-    .selected-card .card-front { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:18px 14px; }
-    .selected-card .card-front::before,.selected-card .card-front::after { content:''; position:absolute; width:20px; height:20px; border-color:rgba(201,169,110,.4); border-style:solid; }
-    .selected-card .card-front::before { top:9px; left:9px; border-width:1px 0 0 1px; }
-    .selected-card .card-front::after  { bottom:9px; right:9px; border-width:0 1px 1px 0; }
-    .selected-card .c-symbol { font-size:36px; }
-    .selected-card .c-name   { font-family:'Cinzel',serif; font-size:14px; font-weight:600; color:#e8c98a; letter-spacing:.07em; text-align:center; }
-    .selected-card .c-tag    { font-style:italic; font-size:10px; color:#7a6540; text-align:center; line-height:1.35; }
-    .selected-card .card-back { transform:rotateY(180deg); background:#100e0b; padding:13px 11px; display:flex; flex-direction:column; gap:7px; }
-    .back-title { font-family:'Cinzel',serif; font-size:7.5px; letter-spacing:.14em; color:#c9a96e; text-align:center; border-bottom:1px solid rgba(201,169,110,.2); padding-bottom:6px; }
-    .back-items { list-style:none; display:flex; flex-direction:column; gap:5px; }
-    .back-items li { font-size:10px; line-height:1.38; color:var(--cream); display:flex; gap:5px; }
-    .back-items li::before { content:'✦'; color:var(--gold-dim); font-size:6px; flex-shrink:0; margin-top:2px; }
-    .stage-hint { font-style:italic; font-size:12px; color:#4a3e2e; max-width:160px; line-height:1.6; }
-
-    .controls { display:flex; gap:12px; margin-top:16px; margin-bottom:.5rem; flex-wrap:wrap; justify-content:center; padding:0 20px; }
-    .btn { font-family:'Cinzel',serif; font-size:10px; letter-spacing:.22em; padding:10px 24px; border:1px solid rgba(201,169,110,.4); background:transparent; color:var(--gold); cursor:pointer; transition:all .22s; border-radius:2px; }
-    .btn:hover { background:rgba(201,169,110,.08); border-color:var(--gold); color:var(--gold-light); }
-    .btn:active { transform:scale(.97); }
-    .btn.primary { border-color:var(--gold); background:rgba(201,169,110,.07); }
-    .status { font-style:italic; font-size:13px; color:#4a3e2e; margin-top:6px; margin-bottom:2.5rem; letter-spacing:.05em; min-height:20px; text-align:center; padding:0 1rem; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--gold:#c9a96e;--gold-dim:#7a6540;--cream:#c4b89a}
+    html,body{min-height:100%;background:#0e0c09;display:flex;flex-direction:column;align-items:center;font-family:'Cormorant Garamond',Georgia,serif;overflow-x:hidden}
+    header{text-align:center;padding:3.5rem 2rem 0.5rem}
+    header h1{font-family:'Cinzel',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:400;letter-spacing:.35em;color:var(--gold)}
+    header p{font-size:1rem;font-style:italic;color:var(--gold-dim);margin-top:.4rem;letter-spacing:.1em}
+    .divider-h{width:min(360px,70vw);height:1px;background:linear-gradient(to right,transparent,var(--gold-dim),transparent);margin:1.5rem auto}
+    .fan-container{position:relative;width:90px;height:138px;margin:60px auto 100px;flex-shrink:0}
+    .fan-card{position:absolute;inset:0;width:90px;height:138px;transform-origin:50% 100%;cursor:pointer;transition:transform .52s cubic-bezier(.34,1.1,.64,1),opacity .35s ease;will-change:transform}
+    .fan-card.gone{pointer-events:none;opacity:0!important;transform:rotate(0deg)!important}
+    .fan-card:not(.gone):hover .ci{transform:translateY(-8px) scale(1.06)}
+    .ci{width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s ease;border-radius:6px;position:relative}
+    .cf{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;border:1px solid rgba(201,169,110,.28);overflow:hidden}
+    .cf-front{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 7px}
+    .cf-front::before,.cf-front::after{content:'';position:absolute;width:10px;height:10px;border-color:rgba(201,169,110,.28);border-style:solid}
+    .cf-front::before{top:5px;left:5px;border-width:1px 0 0 1px}
+    .cf-front::after{bottom:5px;right:5px;border-width:0 1px 1px 0}
+    .cs{font-size:20px;line-height:1}
+    .cn{font-family:'Cinzel',serif;font-size:8px;font-weight:600;color:#e8c98a;letter-spacing:.05em;text-align:center}
+    .cd{background:#171410;display:flex;align-items:center;justify-content:center}
+    .cd-i{width:calc(100% - 10px);height:calc(100% - 10px);border:1px solid rgba(201,169,110,.1);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(201,169,110,.07)}
+    .divider-section{width:min(500px,85%);height:1px;background:linear-gradient(to right,transparent,rgba(201,169,110,.18),transparent);margin:0 auto 14px}
+    .stage-row{width:100%;display:flex;align-items:center;justify-content:center;gap:16px;min-height:260px;padding:0 12px;flex-shrink:0}
+    .stage-placeholder{font-style:italic;font-size:13px;color:#3a3020}
+    .stage-instructions{display:flex;flex-direction:column;gap:10px;max-width:110px;flex-shrink:0}
+    .instr-line{display:flex;align-items:flex-start;gap:6px;font-style:italic;font-size:10px;color:#4a3e2e;line-height:1.5}
+    .instr-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+    .stage-card{width:160px;height:246px;position:relative;flex-shrink:0;border-radius:10px;cursor:grab;user-select:none;touch-action:none}
+    .stage-card.dragging{cursor:grabbing}
+    .stage-card-ghost{width:160px;height:246px;flex-shrink:0;border-radius:10px;overflow:hidden;opacity:.45;pointer-events:none;}
+    .stage-card.flipped .ci{transform:rotateY(180deg)}
+    .stage-card .ci{border-radius:10px;transition:transform .7s cubic-bezier(.4,0,.2,1)}
+    .stage-card .cf{border-radius:10px;border-color:rgba(201,169,110,.4)}
+    .stage-card .cs{font-size:38px}
+    .stage-card .cn{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em}
+    .stage-card .ct{font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4}
+    .bt{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:.14em;color:#c9a96e;text-align:center;border-bottom:1px solid rgba(201,169,110,.2);padding-bottom:6px}
+    .bi{list-style:none;display:flex;flex-direction:column;gap:5px}
+    .bi li{font-size:10px;line-height:1.4;color:var(--cream);display:flex;gap:5px}
+    .bi li::before{content:'✦';color:var(--gold-dim);font-size:6px;flex-shrink:0;margin-top:3px}
+    .discard-zone{position:relative;width:68px;height:100px;flex-shrink:0;cursor:pointer;transition:transform .2s}
+    .discard-zone.drag-over .discard-ghost{border-color:rgba(201,169,110,.8);background:rgba(201,169,110,.06)}
+    .discard-zone.drag-over{transform:scale(1.08)}
+    .discard-ghost{position:absolute;inset:0;border-radius:5px;border:2px dashed rgba(201,169,110,.25);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(201,169,110,.1);transition:border-color .2s,background .2s}
+    .discard-mini{position:absolute;width:68px;height:100px;border-radius:5px;border:1px solid rgba(201,169,110,.22)}
+    .discard-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:7px;letter-spacing:.1em;color:#5a4e3c;white-space:pre;line-height:1.5;text-align:center;transition:color .2s}
+    .discard-zone:hover .discard-label{color:var(--gold)}
+    .discard-count{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-family:'Cinzel',serif;font-size:9px;font-weight:600;color:#0e0c09;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+    .discard-count.show{opacity:1}
+    @keyframes pile-pulse{0%{box-shadow:0 0 0 0 rgba(201,169,110,.6)}70%{box-shadow:0 0 0 10px rgba(201,169,110,0)}100%{box-shadow:0 0 0 0 rgba(201,169,110,0)}}
+    .discard-zone.just-received{animation:pile-pulse .55s ease-out}
+    .drawer-overlay{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(10,8,6,.88);opacity:0;pointer-events:none;transition:opacity .25s ease}
+    .drawer-overlay.open{opacity:1;pointer-events:all}
+    .drawer{background:#171410;border:1px solid rgba(201,169,110,.25);border-radius:10px;padding:20px 18px;width:min(340px,88%);max-height:80vh;overflow-y:auto}
+    .drawer h3{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:#7a6540;margin-bottom:14px}
+    .drawer-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .drawer-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;border:1px solid rgba(201,169,110,.15);cursor:pointer;transition:background .18s,border-color .18s}
+    .drawer-item:hover{background:rgba(201,169,110,.07);border-color:rgba(201,169,110,.35)}
+    .drawer-item-sym{font-size:20px;flex-shrink:0}
+    .drawer-item-name{font-family:'Cinzel',serif;font-size:11px;color:#e8c98a}
+    .drawer-item-tag{font-style:italic;font-size:9px;color:#7a6540;line-height:1.3}
+    .drawer-close{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.15em;color:#5a4e3c;margin-top:16px;text-align:center;cursor:pointer}
+    .drawer-close:hover{color:var(--gold)}
+    .controls{display:flex;gap:12px;margin-top:16px;margin-bottom:.5rem;flex-wrap:wrap;justify-content:center;padding:0 20px}
+    .btn{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.22em;padding:10px 24px;border:1px solid rgba(201,169,110,.4);background:transparent;color:var(--gold);cursor:pointer;transition:all .22s;border-radius:2px}
+    .btn:hover{background:rgba(201,169,110,.08);border-color:var(--gold);color:#e8c98a}
+    .btn:active{transform:scale(.97)}
+    .btn.primary{border-color:var(--gold);background:rgba(201,169,110,.07)}
+    .status{font-style:italic;font-size:13px;color:#4a3e2e;margin-top:6px;margin-bottom:2.5rem;letter-spacing:.05em;min-height:20px;text-align:center;padding:0 1rem}
   </style>
 </head>
 <body>
-<header>
-  <h1>Feel It</h1>
-  <p>Emotion Regulation Cards</p>
-</header>
+<header><h1>Feel It</h1><p>Emotion Regulation Cards</p></header>
 <div class="divider-h"></div>
-<div class="fan-arena" id="fanArena"></div>
+<div class="fan-container" id="fanContainer"></div>
 <div class="divider-section"></div>
-<div class="stage-area" id="stageArea">
+<div class="stage-row" id="stageRow">
   <div class="stage-placeholder" id="placeholder">Select a card from the fan above</div>
 </div>
 <div class="controls">
@@ -86,128 +92,243 @@
   <button class="btn" id="gatherBtn">Gather deck</button>
 </div>
 <div class="status" id="status">Click the deck to begin</div>
-
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <h3>Previously placed cards</h3>
+    <ul class="drawer-list" id="drawerList"></ul>
+    <div class="drawer-close" id="drawerClose">✕ Close</div>
+  </div>
+</div>
 <script>
-const CARDS = [
-  { symbol:'🌊', name:'Grief',       color:'#1a2535', tagline:'The ocean carrying what we\'ve lost',               actions:['I can let myself cry without apology','I can write to what — or who — I\'ve lost','I can move at my own pace through this','I can reach out to someone who loved them too'] },
-  { symbol:'🔥', name:'Anger',       color:'#2a1810', tagline:'A signal that a boundary was crossed',              actions:['I can move my body to release this energy','I can write what I cannot say, then let it go','I can name what feels unjust beneath the rage','I can channel this into something I create'] },
-  { symbol:'🌿', name:'Peace',       color:'#0e1a12', tagline:'The stillness I always carry within',               actions:['I can breathe slowly and notice what\'s around me','I can share this calm with someone who needs it','I can feel my feet on the ground, right now','I can rest here without guilt'] },
-  { symbol:'🕯️', name:'Loneliness',  color:'#1a1525', tagline:'The ache of longing to be truly seen',             actions:['I can reach out to one person, even briefly','I can sit with this — it will not last forever','I can go somewhere I\'m around other people','I can remind myself I am not alone in this'] },
-  { symbol:'⚡', name:'Anxiety',     color:'#1a1a0f', tagline:'My mind trying to keep me safe',                   actions:['I can name five things I can see right now','I can breathe in for 4 counts, out for 6','I can write the worry down and close the page','I can ask myself: is this happening right now?'] },
-  { symbol:'☀️', name:'Joy',          color:'#1a1508', tagline:'Aliveness recognizing itself',                     actions:['I can share this — joy grows when given away','I can let myself feel it fully, without shrinking','I can write down exactly what is making me happy','I can call someone I love just to tell them'] },
-  { symbol:'🌑', name:'Shame',       color:'#120d0d', tagline:'The wound of believing I am the mistake',          actions:['I can speak this aloud — shame fades in light','I can separate what I did from who I am','I can talk to someone safe, without the full story','I can write what a compassionate friend would say to me'] },
-  { symbol:'🌸', name:'Tenderness',  color:'#1a0d14', tagline:'Love in its most open, vulnerable form',           actions:['I can stay in this softness without rushing','I can tell someone I love them, right now','I can let myself be moved by what is beautiful','I can turn this same gentleness toward myself'] },
-  { symbol:'🌫️', name:'Numbness',    color:'#141414', tagline:'The quiet after too much feeling',                 actions:['I can be patient — this is also a response','I can do something small and physical','I can drink water and step outside briefly','I can trust that feeling will return in its own time'] },
-  { symbol:'💫', name:'Hope',        color:'#0d1020', tagline:'The choice to believe in what might come',          actions:['I can write one thing I\'m looking forward to','I can take a small step toward what I\'m hoping for','I can share this hope with someone who will guard it','I can let hope be tentative — it doesn\'t need to be certain'] },
-  { symbol:'🎭', name:'Envy',        color:'#101a0e', tagline:'A clue about what I secretly desire',              actions:['I can ask: what do I want that they seem to have?','I can use this as a compass, not a weapon','I can celebrate them anyway — it breaks the spell','I can take one small step toward what I actually want'] },
-  { symbol:'🌬️', name:'Overwhelm',   color:'#0d1520', tagline:'More than this moment can hold at once',          actions:['I can do only the very next smallest thing','I can write everything out to clear my mind','I can say no to one thing today','I can ask for help with just one specific thing'] },
-  { symbol:'🌹', name:'Love',        color:'#1a0a0c', tagline:'The force that makes life worth living',           actions:['I can express this — love unfelt and unspoken fades','I can be fully present with the people who matter','I can notice love living inside the small moments','I can begin by loving myself — it flows outward from there'] },
-  { symbol:'🌀', name:'Confusion',   color:'#130e1a', tagline:'My mind asking for more information',              actions:['I can write the question I cannot yet answer','I can sit with "I don\'t know" — that\'s honest','I can break this into smaller, clearer questions','I can trust that clarity will come when it\'s ready'] },
-  { symbol:'🦋', name:'Excitement',  color:'#0c100c', tagline:'Possibility wearing a bright new coat',            actions:['I can lean into this — the energy is mine to use','I can write down everything I want to happen','I can take one concrete action while I feel this','I can begin something before this feeling passes'] },
-  { symbol:'🪨', name:'Frustration', color:'#181008', tagline:'The friction between here and where I want to be', actions:['I can name specifically what feels blocked','I can pause — pushing harder rarely helps here','I can ask myself what I actually control right now','I can release what I cannot change today'] },
-  { symbol:'🌙', name:'Melancholy',  color:'#0e1020', tagline:'A beautiful sadness without sharp edges',          actions:['I can let music carry what words cannot','I can go slowly — this feeling asks for gentleness','I can write or draw without needing it to make sense','I can let myself be nostalgic, just for a while'] },
-  { symbol:'🛡️', name:'Fear',        color:'#100e18', tagline:'My body asking: are we safe?',                    actions:['I can name the specific thing I\'m afraid of','I can ground myself — feet flat, slow steady breath','I can ask: what is the most likely outcome here?','I can talk to someone — fear only grows in silence'] },
-  { symbol:'🌻', name:'Gratitude',   color:'#16100a', tagline:'Noticing the gifts already in my hands',          actions:['I can write three things I\'m grateful for, specifically','I can tell someone directly what they mean to me','I can slow down and fully inhabit this moment','I can pass something forward — give what I\'ve received'] },
-  { symbol:'🫧', name:'Guilt',       color:'#0e1318', tagline:'My conscience pointing toward repair',             actions:['I can remember: this is about my action, not my worth','I can make amends — even a small gesture counts','I can apologize without explaining or defending myself','I can forgive myself — real growth has happened here'] },
+const CARDS=[
+  {symbol:'🌊',name:'Grief',color:'#1a2535',tagline:'The ocean carrying what we\'ve lost',actions:['I can let myself cry without apology','I can write to what — or who — I\'ve lost','I can move at my own pace through this','I can reach out to someone who loved them too']},
+  {symbol:'🔥',name:'Anger',color:'#2a1810',tagline:'A signal that a boundary was crossed',actions:['I can move my body to release this energy','I can write what I cannot say, then let it go','I can name what feels unjust beneath the rage','I can channel this into something I create']},
+  {symbol:'🌿',name:'Peace',color:'#0e1a12',tagline:'The stillness I always carry within',actions:['I can breathe slowly and notice what\'s around me','I can share this calm with someone who needs it','I can feel my feet on the ground, right now','I can rest here without guilt']},
+  {symbol:'🕯️',name:'Loneliness',color:'#1a1525',tagline:'The ache of longing to be truly seen',actions:['I can reach out to one person, even briefly','I can sit with this — it will not last forever','I can go somewhere I\'m around other people','I can remind myself I am not alone in this']},
+  {symbol:'⚡',name:'Anxiety',color:'#1a1a0f',tagline:'My mind trying to keep me safe',actions:['I can name five things I can see right now','I can breathe in for 4 counts, out for 6','I can write the worry down and close the page','I can ask myself: is this happening right now?']},
+  {symbol:'☀️',name:'Joy',color:'#1a1508',tagline:'Aliveness recognizing itself',actions:['I can share this — joy grows when given away','I can let myself feel it fully, without shrinking','I can write down exactly what is making me happy','I can call someone I love just to tell them']},
+  {symbol:'🌑',name:'Shame',color:'#120d0d',tagline:'The wound of believing I am the mistake',actions:['I can speak this aloud — shame fades in light','I can separate what I did from who I am','I can talk to someone safe, without the full story','I can write what a compassionate friend would say to me']},
+  {symbol:'🌸',name:'Tenderness',color:'#1a0d14',tagline:'Love in its most open, vulnerable form',actions:['I can stay in this softness without rushing','I can tell someone I love them, right now','I can let myself be moved by what is beautiful','I can turn this same gentleness toward myself']},
+  {symbol:'🌫️',name:'Numbness',color:'#141414',tagline:'The quiet after too much feeling',actions:['I can be patient — this is also a response','I can do something small and physical','I can drink water and step outside briefly','I can trust that feeling will return in its own time']},
+  {symbol:'💫',name:'Hope',color:'#0d1020',tagline:'The choice to believe in what might come',actions:['I can write one thing I\'m looking forward to','I can take a small step toward what I\'m hoping for','I can share this hope with someone who will guard it','I can let hope be tentative — it doesn\'t need to be certain']},
+  {symbol:'🎭',name:'Envy',color:'#101a0e',tagline:'A clue about what I secretly desire',actions:['I can ask: what do I want that they seem to have?','I can use this as a compass, not a weapon','I can celebrate them anyway — it breaks the spell','I can take one small step toward what I actually want']},
+  {symbol:'🌬️',name:'Overwhelm',color:'#0d1520',tagline:'More than this moment can hold at once',actions:['I can do only the very next smallest thing','I can write everything out to clear my mind','I can say no to one thing today','I can ask for help with just one specific thing']},
+  {symbol:'🌹',name:'Love',color:'#1a0a0c',tagline:'The force that makes life worth living',actions:['I can express this — love unfelt and unspoken fades','I can be fully present with the people who matter','I can notice love living inside the small moments','I can begin by loving myself — it flows outward from there']},
+  {symbol:'🌀',name:'Confusion',color:'#130e1a',tagline:'My mind asking for more information',actions:['I can write the question I cannot yet answer','I can sit with "I don\'t know" — that\'s honest','I can break this into smaller, clearer questions','I can trust that clarity will come when it\'s ready']},
+  {symbol:'🦋',name:'Excitement',color:'#0c100c',tagline:'Possibility wearing a bright new coat',actions:['I can lean into this — the energy is mine to use','I can write down everything I want to happen','I can take one concrete action while I feel this','I can begin something before this feeling passes']},
+  {symbol:'🪨',name:'Frustration',color:'#181008',tagline:'The friction between here and where I want to be',actions:['I can name specifically what feels blocked','I can pause — pushing harder rarely helps here','I can ask myself what I actually control right now','I can release what I cannot change today']},
+  {symbol:'🌙',name:'Melancholy',color:'#0e1020',tagline:'A beautiful sadness without sharp edges',actions:['I can let music carry what words cannot','I can go slowly — this feeling asks for gentleness','I can write or draw without needing it to make sense','I can let myself be nostalgic, just for a while']},
+  {symbol:'🛡️',name:'Fear',color:'#100e18',tagline:'My body asking: are we safe?',actions:['I can name the specific thing I\'m afraid of','I can ground myself — feet flat, slow steady breath','I can ask: what is the most likely outcome here?','I can talk to someone — fear only grows in silence']},
+  {symbol:'🌻',name:'Gratitude',color:'#16100a',tagline:'Noticing the gifts already in my hands',actions:['I can write three things I\'m grateful for, specifically','I can tell someone directly what they mean to me','I can slow down and fully inhabit this moment','I can pass something forward — give what I\'ve received']},
+  {symbol:'🫧',name:'Guilt',color:'#0e1318',tagline:'My conscience pointing toward repair',actions:['I can remember: this is about my action, not my worth','I can make amends — even a small gesture counts','I can apologize without explaining or defending myself','I can forgive myself — real growth has happened here']},
 ];
 
-const fanArena=document.getElementById('fanArena'),stageArea=document.getElementById('stageArea'),placeholder=document.getElementById('placeholder'),shuffleBtn=document.getElementById('shuffleBtn'),gatherBtn=document.getElementById('gatherBtn'),statusEl=document.getElementById('status');
-let isSpread=false,shuffled=[...CARDS],cardEls=[],selectedIdx=-1;
-const CARD_W=72,CARD_H=110;
+const fanContainer=document.getElementById('fanContainer'),stageRow=document.getElementById('stageRow'),placeholder=document.getElementById('placeholder'),shuffleBtn=document.getElementById('shuffleBtn'),gatherBtn=document.getElementById('gatherBtn'),statusEl=document.getElementById('status'),drawerOverlay=document.getElementById('drawerOverlay'),drawerList=document.getElementById('drawerList'),drawerClose=document.getElementById('drawerClose');
+let isSpread=false,shuffled=[...CARDS],cardEls=[],activeData=null,discarded=[],discardZoneEl=null,stageCardEl=null,animating=false;
 
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
 
 function buildCards(){
-  fanArena.innerHTML='';cardEls=[];selectedIdx=-1;clearStage();
+  fanContainer.innerHTML='';cardEls=[];
   shuffled.forEach((data,i)=>{
-    const el=document.createElement('div');el.className='card';
-    el.innerHTML=`<div class="card-inner"><div class="card-face card-front" style="background:${data.color};"><div class="c-symbol">${data.symbol}</div><div class="c-name">${data.name}</div></div><div class="card-face card-deco"><div class="deco-inner">✦</div></div></div>`;
-    el.addEventListener('click',()=>{if(!isSpread){doShuffle();return;}selectCard(i,data,el);});
-    cardEls.push(el);fanArena.appendChild(el);
+    const el=document.createElement('div');el.className='fan-card';
+    el.innerHTML=`<div class="ci"><div class="cf cf-front" style="background:${data.color}"><div class="cs">${data.symbol}</div><div class="cn">${data.name}</div></div><div class="cf cd"><div class="cd-i">✦</div></div></div>`;
+    el.style.zIndex=i+1;
+    el.addEventListener('click',()=>{if(!isSpread){doShuffle();return;}if(animating)return;pickCard(data,el);});
+    cardEls.push(el);fanContainer.appendChild(el);
   });
 }
 
 function stackCards(instant){
-  const W=fanArena.offsetWidth||window.innerWidth||760;const cx=W/2;const n=cardEls.length;
   cardEls.forEach((el,i)=>{
-    const offset=i*0.35,rot=(i-n/2)*0.12;
+    const rot=(i-cardEls.length/2)*0.2;
     if(instant)el.style.transition='none';
-    el.style.left=(cx-CARD_W/2+offset)+'px';el.style.top=(100-offset)+'px';
-    el.style.transform=`rotate(${rot}deg)`;el.style.zIndex=i+1;el.style.opacity='1';
-    el.classList.remove('chosen');
+    el.style.transform=`rotate(${rot}deg)`;el.style.opacity='1';el.classList.remove('gone');
     if(instant)requestAnimationFrame(()=>{el.style.transition='';});
   });
 }
 
 function spreadCards(){
-  const W=fanArena.offsetWidth||window.innerWidth||760;
-  const H=fanArena.offsetHeight||280;
   const n=cardEls.length;
-  const PIVOT_Y=H+80;
-  const R=PIVOT_Y;
-  const PADDING=28;
-  const availW=W-PADDING*2;
-  const maxHalfAngle=Math.asin((availW/2)/R);
-  const halfAngleDeg=Math.min((maxHalfAngle*180)/Math.PI,55);
   cardEls.forEach((el,i)=>{
-    if(el.classList.contains('chosen'))return;
-    const t=n===1?0:(i/(n-1)-0.5);
-    const angleDeg=t*halfAngleDeg*2;
-    const angleRad=angleDeg*Math.PI/180;
-    const cardBottomX=W/2+R*Math.sin(angleRad);
-    const cardBottomY=PIVOT_Y-R*Math.cos(angleRad);
-    const left=cardBottomX-CARD_W/2;
-    const top=cardBottomY-CARD_H;
-    const delay=i*20;
-    el.style.transition=`transform .5s cubic-bezier(.34,1.1,.64,1) ${delay}ms,left .5s cubic-bezier(.34,1.1,.64,1) ${delay}ms,top .5s cubic-bezier(.34,1.1,.64,1) ${delay}ms,opacity .35s ease ${delay}ms`;
-    el.style.left=left+'px';el.style.top=top+'px';el.style.transform=`rotate(${angleDeg}deg)`;
-    el.style.zIndex=i+1;el.style.opacity='1';el._rot=angleDeg;
+    if(el.classList.contains('gone'))return;
+    const t=n===1?0:(i/(n-1)-0.5);const deg=t*104;const delay=i*18;
+    el.style.transition=`transform .52s cubic-bezier(.34,1.1,.64,1) ${delay}ms,opacity .3s ease ${delay}ms`;
+    el.style.transform=`rotate(${deg}deg)`;el.style.opacity='1';
   });
 }
 
-function sendCardAside(fanEl){
-  const W=fanArena.offsetWidth||760;const cx=parseFloat(fanEl.style.left)+CARD_W/2;const goRight=cx>W/2;
-  fanEl.style.transition='left .4s ease,top .4s ease,transform .4s ease,opacity .35s ease';
-  fanEl.style.left=(goRight?W+20:-CARD_W-20)+'px';fanEl.style.top=(parseFloat(fanEl.style.top)+24)+'px';
-  fanEl.style.transform=`rotate(${(fanEl._rot||0)+(goRight?14:-14)}deg)`;fanEl.style.opacity='0';fanEl.classList.add('chosen');
-}
-
-function selectCard(idx,data,fanEl){
-  if(fanEl.classList.contains('chosen'))return;
-  selectedIdx=idx;sendCardAside(fanEl);clearStage();buildStageCard(data);
-  statusEl.textContent='Tap the card to reveal your "I can…" list';
-}
-
-function buildStageCard(data){
-  placeholder.style.display='none';
-  const wrap=document.createElement('div');wrap.className='selected-card';
-  wrap.innerHTML=`<div class="card-inner"><div class="card-face card-front" style="background:${data.color};"><div class="c-symbol">${data.symbol}</div><div class="c-name">${data.name}</div><div class="c-tag">${data.tagline}</div></div><div class="card-face card-back" style="background:${data.color}ee;"><div class="back-title">Feeling ${data.name.toLowerCase()}, I can…</div><ul class="back-items">${data.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div></div>`;
-  wrap.style.cssText='opacity:0;transform:translateY(20px) scale(0.92);transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.1,.64,1);';
-  wrap.addEventListener('click',()=>wrap.classList.toggle('flipped'));
-  const hint=document.createElement('div');hint.className='stage-hint';hint.textContent='Tap to flip and find what you can do';
-  stageArea.appendChild(wrap);stageArea.appendChild(hint);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{wrap.style.opacity='1';wrap.style.transform='translateY(0) scale(1)';}));
-}
-
-function clearStage(){stageArea.innerHTML='';placeholder.style.display='block';stageArea.appendChild(placeholder);}
-function doShuffle(){if(isSpread){gatherDeck(true);setTimeout(runShuffle,600);return;}runShuffle();}
-function runShuffle(){
-  isSpread=false;statusEl.textContent='Shuffling…';shuffle(shuffled);buildCards();stackCards(true);
-  let wave=0;
-  function animWave(){
-    if(wave>=3){setTimeout(doSpread,150);return;}
-    const dir=wave%2===0?1:-1;
-    cardEls.forEach((el,i)=>{el.style.transition=`transform .18s ease ${i*8}ms`;el.style.transform=`rotate(${dir*8}deg) translateX(${dir*16}px)`;setTimeout(()=>{el.style.transform='rotate(0deg)';},180+i*8+40);});
-    wave++;setTimeout(animWave,320+cardEls.length*8);
+function pickCard(data,fanEl){
+  animating=true;fanEl.classList.add('gone');
+  if(activeData){
+    animateCardToDiscard(activeData,stageCardEl,()=>{
+      sendToDiscard(activeData);clearStageCard();
+      flyFromFan(fanEl.getBoundingClientRect(),data,()=>{activeData=data;renderStageCard(data);rebuildStageRow();animating=false;statusEl.textContent='Tap to flip · Drag onto the pile to place away';});
+    });
+  } else {
+    flyFromFan(fanEl.getBoundingClientRect(),data,()=>{activeData=data;renderStageCard(data);rebuildStageRow();animating=false;statusEl.textContent='Tap to flip · Drag onto the pile to place away';});
   }
-  animWave();
 }
+
+function animateCardToDiscard(data,cardEl,cb){
+  const stageRect=stageRow.getBoundingClientRect();
+  const discardTargetLeft=stageRect.left+stageRect.width/2+160/2+16;
+  const discardTargetTop=stageRect.top+stageRect.height/2-100/2;
+  const cardRect=cardEl.getBoundingClientRect();
+  const clone=document.createElement('div');
+  clone.style.cssText=`position:fixed;left:${cardRect.left}px;top:${cardRect.top}px;width:${cardRect.width}px;height:${cardRect.height}px;background:${data.color};border-radius:10px;border:1px solid rgba(201,169,110,.4);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;z-index:400;pointer-events:none;transition:left .45s cubic-bezier(.4,0,.6,1),top .45s cubic-bezier(.4,0,.6,1),width .45s ease,height .45s ease,border-radius .45s ease,opacity .35s ease;`;
+  clone.innerHTML=`<div style="font-size:32px;line-height:1">${data.symbol}</div><div style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:#e8c98a;letter-spacing:.06em">${data.name}</div>`;
+  document.body.appendChild(clone);
+  if(cardEl&&cardEl.parentNode)cardEl.style.opacity='0';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    clone.style.left=discardTargetLeft+'px';clone.style.top=discardTargetTop+'px';clone.style.width='68px';clone.style.height='100px';clone.style.borderRadius='5px';clone.style.opacity='0.6';
+    clone.addEventListener('transitionend',()=>{clone.remove();if(cardEl&&cardEl.parentNode)cardEl.style.opacity='';cb();},{once:true});
+  }));
+}
+
+function flyFromFan(srcRect,data,cb){
+  const flyEl=document.createElement('div');
+  flyEl.style.cssText=`position:fixed;width:${srcRect.width}px;height:${srcRect.height}px;left:${srcRect.left}px;top:${srcRect.top}px;background:${data.color};border-radius:6px;border:1px solid rgba(201,169,110,.35);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:8px;transition:left .52s cubic-bezier(.4,0,.2,1),top .52s cubic-bezier(.4,0,.2,1),width .52s ease,height .52s ease,border-radius .52s ease;z-index:200;pointer-events:none;`;
+  flyEl.innerHTML=`<div style="font-size:18px;line-height:1">${data.symbol}</div>`;
+  document.body.appendChild(flyEl);
+  const sr=stageRow.getBoundingClientRect();const tW=160,tH=246,tL=sr.left+sr.width/2-tW/2,tT=sr.top+sr.height/2-tH/2;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    flyEl.style.left=tL+'px';flyEl.style.top=tT+'px';flyEl.style.width=tW+'px';flyEl.style.height=tH+'px';flyEl.style.borderRadius='10px';
+    flyEl.addEventListener('transitionend',()=>{flyEl.remove();cb();},{once:true});
+  }));
+}
+
+function renderStageCard(data){
+  stageCardEl=document.createElement('div');stageCardEl.className='stage-card';
+  stageCardEl.innerHTML=`<div class="ci"><div class="cf cf-front" style="background:${data.color}"><div class="cs">${data.symbol}</div><div class="cn">${data.name}</div><div class="ct">${data.tagline}</div></div><div class="cf" style="transform:rotateY(180deg);background:${data.color}dd;border-radius:10px;border:1px solid rgba(201,169,110,.4);padding:14px 12px;display:flex;flex-direction:column;gap:8px;overflow:hidden;"><div class="bt">Feeling ${data.name.toLowerCase()}, I can…</div><ul class="bi">${data.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div></div>`;
+  // Drag uses a floating clone so the layout never shifts
+  let dragActive=false,startX=0,startY=0,wasDragged=false,dragClone=null,ghostEl=null;
+  function onDown(e){
+    if(animating)return;
+    const pt=e.touches?e.touches[0]:e;startX=pt.clientX;startY=pt.clientY;
+    const r=stageCardEl.getBoundingClientRect();
+    dragActive=true;wasDragged=false;
+    // Create a fixed-position clone for dragging
+    dragClone=document.createElement('div');
+    dragClone.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:500;pointer-events:none;border-radius:10px;background:${activeData.color};border:1px solid rgba(201,169,110,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 14px;`;
+    dragClone.innerHTML=`<div style="font-size:38px;line-height:1">${activeData.symbol}</div><div style="font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em;text-align:center">${activeData.name}</div><div style="font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4">${activeData.tagline}</div>`;
+    document.body.appendChild(dragClone);
+    // Insert ghost placeholder so layout doesn't shift
+    ghostEl=document.createElement('div');ghostEl.className='stage-card-ghost';
+    ghostEl.style.cssText=`background:${activeData.color};border:1px solid rgba(201,169,110,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 14px;`;
+    ghostEl.innerHTML=`<div style="font-size:38px;line-height:1">${activeData.symbol}</div><div style="font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:#e8c98a;letter-spacing:.08em;text-align:center">${activeData.name}</div><div style="font-style:italic;font-size:10px;color:#7a6540;text-align:center;line-height:1.4">${activeData.tagline}</div>`;
+    stageCardEl.parentNode.insertBefore(ghostEl,stageCardEl);
+    stageCardEl.style.display='none';
+    document.addEventListener('mousemove',onMove);document.addEventListener('touchmove',onMove,{passive:false});document.addEventListener('mouseup',onUp);document.addEventListener('touchend',onUp);
+  }
+  function onMove(e){
+    if(!dragActive)return;if(e.cancelable)e.preventDefault();
+    const pt=e.touches?e.touches[0]:e;const dx=pt.clientX-startX,dy=pt.clientY-startY;
+    if(Math.abs(dx)>4||Math.abs(dy)>4)wasDragged=true;
+    const r=ghostEl.getBoundingClientRect();
+    dragClone.style.left=(r.left+dx)+'px';dragClone.style.top=(r.top+dy)+'px';
+    if(discardZoneEl){const dz=discardZoneEl.getBoundingClientRect();discardZoneEl.classList.toggle('drag-over',pt.clientX>dz.left&&pt.clientX<dz.right&&pt.clientY>dz.top&&pt.clientY<dz.bottom);}
+  }
+  function onUp(e){
+    if(!dragActive)return;dragActive=false;
+    document.removeEventListener('mousemove',onMove);document.removeEventListener('touchmove',onMove);document.removeEventListener('mouseup',onUp);document.removeEventListener('touchend',onUp);
+    if(discardZoneEl)discardZoneEl.classList.remove('drag-over');
+    if(!wasDragged){
+      // Just a tap — restore card, remove ghost, toggle flip
+      dragClone.remove();dragClone=null;
+      ghostEl.remove();ghostEl=null;
+      stageCardEl.style.display='';
+      stageCardEl.classList.toggle('flipped');
+      return;
+    }
+    const pt=e.changedTouches?e.changedTouches[0]:e;
+    let dropped=false;
+    if(discardZoneEl){const dz=discardZoneEl.getBoundingClientRect();dropped=pt.clientX>dz.left&&pt.clientX<dz.right&&pt.clientY>dz.top&&pt.clientY<dz.bottom;}
+    if(dropped){
+      animating=true;
+      const dzRect=discardZoneEl.getBoundingClientRect();
+      // Animate clone into discard pile
+      dragClone.style.transition='left .4s cubic-bezier(.4,0,.2,1),top .4s cubic-bezier(.4,0,.2,1),width .4s ease,height .4s ease,border-radius .4s ease,opacity .35s ease';
+      dragClone.style.left=dzRect.left+'px';dragClone.style.top=dzRect.top+'px';dragClone.style.width='68px';dragClone.style.height='100px';dragClone.style.borderRadius='5px';dragClone.style.opacity='0';
+      setTimeout(()=>{
+        dragClone.remove();dragClone=null;ghostEl.remove();ghostEl=null;stageCardEl.remove();
+        sendToDiscard(activeData);clearStageCard();rebuildStageRow();
+        if(discardZoneEl){discardZoneEl.classList.remove('just-received');void discardZoneEl.offsetWidth;discardZoneEl.classList.add('just-received');}
+        animating=false;statusEl.textContent='Card placed — pick another from the fan';
+      },420);
+    } else {
+      // Snap clone back to ghost position, then restore real card
+      const gr=ghostEl.getBoundingClientRect();
+      dragClone.style.transition='left .3s cubic-bezier(.34,1.1,.64,1),top .3s cubic-bezier(.34,1.1,.64,1)';
+      dragClone.style.left=gr.left+'px';dragClone.style.top=gr.top+'px';
+      setTimeout(()=>{
+        dragClone.remove();dragClone=null;ghostEl.remove();ghostEl=null;stageCardEl.style.display='';
+      },320);
+    }
+  }
+  stageCardEl.addEventListener('mousedown',onDown);stageCardEl.addEventListener('touchstart',onDown,{passive:true});
+}
+
+function clearStageCard(){stageCardEl=null;activeData=null;}
+
+function rebuildStageRow(){
+  stageRow.innerHTML='';
+  placeholder.style.display='none';
+
+  // Always show instructions on the left
+  const instr=document.createElement('div');instr.className='stage-instructions';
+  if(activeData){
+    instr.innerHTML=`<div class="instr-line"><span class="instr-icon">👆</span><span>Tap to flip and see your "I can" list</span></div><div class="instr-line"><span class="instr-icon">🃏</span><span>Pick a new card and this one moves to the pile</span></div><div class="instr-line"><span class="instr-icon">👉</span><span>Or drag it onto the pile yourself</span></div><div class="instr-line"><span class="instr-icon">📚</span><span>Tap the pile to bring a card back</span></div>`;
+  } else {
+    instr.innerHTML=`<div class="instr-line"><span class="instr-icon">🃏</span><span>Pick a card from the fan above</span></div><div class="instr-line"><span class="instr-icon">📚</span><span>Tap the pile to bring a card back</span></div>`;
+  }
+  stageRow.appendChild(instr);
+
+  // Centre: active card or empty slot
+  if(activeData){
+    stageRow.appendChild(stageCardEl);
+  } else {
+    // Empty slot — keeps layout stable
+    const emptySlot=document.createElement('div');
+    emptySlot.style.cssText='width:160px;height:246px;flex-shrink:0;border-radius:10px;border:1px dashed rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;';
+    emptySlot.innerHTML='<span style="font-style:italic;font-size:11px;color:#3a3020;text-align:center;padding:0 12px">Select a card<br>from the fan</span>';
+    stageRow.appendChild(emptySlot);
+  }
+
+  // Right: discard pile (always shown once a card has ever been drawn)
+  discardZoneEl=buildDiscardZone();stageRow.appendChild(discardZoneEl);
+}
+
+function buildDiscardZone(){
+  const zone=document.createElement('div');zone.className='discard-zone';const count=discarded.length;
+  if(count===0){zone.innerHTML=`<div class="discard-ghost">✦</div><span class="discard-label">Drag here\nto place</span>`;}
+  else{const sc=Math.min(count,4);for(let i=0;i<sc;i++){const m=document.createElement('div');m.className='discard-mini';const off=i*1.8;m.style.cssText=`top:${off}px;left:${off}px;background:${discarded[count-1-i].data.color};position:absolute;`;zone.appendChild(m);}const cnt=document.createElement('div');cnt.className='discard-count show';cnt.textContent=count;zone.appendChild(cnt);const lbl=document.createElement('span');lbl.className='discard-label';lbl.textContent='Placed\nTap to recall';zone.appendChild(lbl);zone.addEventListener('click',openDrawer);}
+  return zone;
+}
+
+function sendToDiscard(data){discarded.push({data});}
+function openDrawer(){drawerList.innerHTML='';discarded.forEach(({data},idx)=>{const li=document.createElement('li');li.className='drawer-item';li.innerHTML=`<span class="drawer-item-sym">${data.symbol}</span><div><div class="drawer-item-name">${data.name}</div><div class="drawer-item-tag">${data.tagline}</div></div>`;li.addEventListener('click',()=>{recallFromDiscard(idx,data);closeDrawer();});drawerList.appendChild(li);});drawerOverlay.classList.add('open');}
+function closeDrawer(){drawerOverlay.classList.remove('open');}
+
+function recallFromDiscard(idx,data){
+  if(animating)return;animating=true;discarded.splice(idx,1);
+  if(activeData){sendToDiscard(activeData);clearStageCard();}
+  const srcRect=discardZoneEl?discardZoneEl.getBoundingClientRect():stageRow.getBoundingClientRect();
+  const flyEl=document.createElement('div');flyEl.style.cssText=`position:fixed;width:68px;height:100px;left:${srcRect.left}px;top:${srcRect.top}px;background:${data.color};border-radius:5px;border:1px solid rgba(201,169,110,.35);display:flex;align-items:center;justify-content:center;font-size:24px;transition:left .52s cubic-bezier(.4,0,.2,1),top .52s cubic-bezier(.4,0,.2,1),width .52s ease,height .52s ease,border-radius .52s ease;z-index:200;pointer-events:none;`;flyEl.textContent=data.symbol;document.body.appendChild(flyEl);
+  const sr=stageRow.getBoundingClientRect();const tW=160,tH=246,tL=sr.left+sr.width/2-tW/2,tT=sr.top+sr.height/2-tH/2;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{flyEl.style.left=tL+'px';flyEl.style.top=tT+'px';flyEl.style.width=tW+'px';flyEl.style.height=tH+'px';flyEl.style.borderRadius='10px';flyEl.addEventListener('transitionend',()=>{flyEl.remove();activeData=data;renderStageCard(data);rebuildStageRow();animating=false;statusEl.textContent='Tap to flip · Drag onto the pile to place away';},{once:true});}));
+}
+
+drawerClose.addEventListener('click',closeDrawer);
+drawerOverlay.addEventListener('click',e=>{if(e.target===drawerOverlay)closeDrawer();});
+
+function doShuffle(){if(animating)return;if(isSpread){gatherDeck(true);setTimeout(runShuffle,600);return;}runShuffle();}
+function runShuffle(){isSpread=false;animating=false;activeData=null;discarded=[];stageCardEl=null;statusEl.textContent='Shuffling…';shuffle(shuffled);buildCards();stackCards(true);stageRow.innerHTML='';stageRow.appendChild(placeholder);placeholder.style.display='block';let wave=0;function animWave(){if(wave>=3){setTimeout(doSpread,150);return;}const dir=wave%2===0?1:-1;cardEls.forEach((el,i)=>{el.style.transition=`transform .18s ease ${i*8}ms`;el.style.transform=`rotate(${dir*9}deg)`;setTimeout(()=>{el.style.transform='rotate(0deg)';},200+i*8);});wave++;setTimeout(animWave,320+cardEls.length*8);}animWave();}
 function doSpread(){isSpread=true;spreadCards();statusEl.textContent='Select a card to draw it';}
-function gatherDeck(silent){isSpread=false;selectedIdx=-1;clearStage();stackCards();if(!silent)statusEl.textContent='Deck gathered — shuffle & spread again';}
+function gatherDeck(silent){isSpread=false;activeData=null;discarded=[];stageCardEl=null;animating=false;stageRow.innerHTML='';stageRow.appendChild(placeholder);placeholder.style.display='block';stackCards();if(!silent)statusEl.textContent='Deck gathered — shuffle & spread again';}
 
 shuffleBtn.addEventListener('click',doShuffle);
 gatherBtn.addEventListener('click',()=>gatherDeck(false));
-window.addEventListener('resize',()=>{if(isSpread)spreadCards();else stackCards(true);});
 buildCards();stackCards(true);
 </script>
 </body>
